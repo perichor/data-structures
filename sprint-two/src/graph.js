@@ -20,7 +20,7 @@ Graph.prototype.contains = function(node) {
 Graph.prototype.removeNode = function(node) {
   this.nodeList.splice(this.nodeList.indexOf(node), 1);
   var currentEdge = undefined;
-  for (let i = this.edgeList.length - 1; i > 0; i--) {
+  for (let i = this.edgeList.length - 1; i >= 0; i--) {
     currentEdge = this.edgeList[i];
     if (currentEdge.includes(node)) {
       currentEdge.splice(i, 1);
@@ -61,7 +61,7 @@ Graph.prototype.removeEdge = function(fromNode, toNode) {
 
 // Pass in a callback which will be executed on each node of the graph.
 Graph.prototype.forEachNode = function(cb) {
-
+  this.nodeList.forEach(cb);
 };
 
 /*
