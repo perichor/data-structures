@@ -66,3 +66,5 @@ var BinarySearchTree = function(value) {
 /*
  * Complexity: What is the time complexity of the above functions?
  */
+ // Worst case time complexity for all operations of a BST = O(n);
+ // Average case time complexity of all operations of a BST = O(log n);
