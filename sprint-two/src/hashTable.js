@@ -18,14 +18,44 @@ HashTable.prototype.insert = function(key, value) {
 HashTable.prototype.insertWithoutResize = function(key, value) {
   var index = getIndexBelowMaxForKey(key, this._limit);
   if (this._storage.get(index) === undefined) {
-    this._storage.set(index, {});
-    this._storage.get(index)[key] = value;
+    // No collision 
+    this._storage.set(index, []);
+    this._storage.get(index).push([key, value]);
     this._itemCount += 1;
   } else {
-    if (!this._storage.get(index).hasOwnProperty(key)) {
+    // Override Test
+    if (!this._bucketHasKey(this._storage.get(index), key)) {
+      // Collision
+      this._storage.get(index).push([key, value]);
       this._itemCount += 1;
+    } else {
+      // Override existing key-value pair
+      this._bucketReplaceKey(this._storage.get(index), key, value);
     }
-    this._storage.get(index)[key] = value;
+  }
+};
+
+HashTable.prototype._bucketReplaceKey = function(bucket, key, value) {
+  if (this._bucketRetrieveKeyIndex(bucket, key) !== undefined) {
+    let i = this._bucketRetrieveKeyIndex(bucket, key);
+    bucket[i] = [key, value];
+  }
+};
+
+HashTable.prototype._bucketRetrieveKeyIndex = function(bucket, key) {
+  for (let i = 0; i < bucket.length; i++) {
+    if (bucket[i][0] === key) {
+      return i;
+    }
+  }
+  return undefined;
+};
+
+HashTable.prototype._bucketHasKey = function(bucket, key) {
+  if (this._bucketRetrieveKeyIndex(bucket, key) !== undefined) {
+    return true;
+  } else {
+    return false;
   }
 };
 
@@ -34,15 +64,18 @@ HashTable.prototype.retrieve = function(key) {
   if (this._storage.get(index) === undefined) {
     return undefined;
   } else {
-    return this._storage.get(index)[key];
+    let keyIndex = this._bucketRetrieveKeyIndex(this._storage.get(index), key);
+    return this._storage.get(index)[keyIndex][1];
   }
 };
 
 HashTable.prototype.remove = function(key) {
   var index = getIndexBelowMaxForKey(key, this._limit);
-  if (this._storage.get(index) !== undefined && this._storage.get(index).hasOwnProperty(key)) {
-    delete this._storage.get(index)[key];
-    if (Object.keys(this._storage.get(index)).length === 0) {
+  if (this._storage.get(index) !== undefined && this._bucketHasKey(this._storage.get(index), key)) {
+    let indexOfKeyToBeRemoved = this._bucketRetrieveKeyIndex(this._storage.get(index), key);
+
+    this._storage.get(index).splice(indexOfKeyToBeRemoved, 1);
+    if (this._storage.get(index).length === 0) {
       this._storage.set(index, undefined);
     }
     this._itemCount -= 1;
@@ -53,9 +86,12 @@ HashTable.prototype.remove = function(key) {
 HashTable.prototype.reHash = function(size) {
   let newHashTable = new HashTable(size);
   for (let i = 0; i < this._limit; i++) {
-    if (this._storage.get(i) !== undefined) {
-      for (let key in this._storage.get(i)) {
-        newHashTable.insertWithoutResize(key, this._storage.get(i)[key]);
+    let currentArrayofKeyValuePairs = this._storage.get(i);
+    if (currentArrayofKeyValuePairs !== undefined) {
+      for (let j = 0; j < currentArrayofKeyValuePairs.length; j++) {
+        let currentKeyToBeRehashed = currentArrayofKeyValuePairs[j][0];
+        let currentValueToBeRehashed = currentArrayofKeyValuePairs[j][1];
+        newHashTable.insertWithoutResize(currentKeyToBeRehashed, currentValueToBeRehashed);
       }
     }
   }
