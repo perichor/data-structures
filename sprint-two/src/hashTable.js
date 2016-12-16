@@ -3,20 +3,27 @@
 var HashTable = function(storageLimit) {
   if (storageLimit === undefined) {
     this._limit = 8;
+  } else {
+    this._limit = storageLimit;
   }
   this._storage = LimitedArray(this._limit);
-  this._hasCollision = false;
+  this._itemCount = 0;
 };
 
 HashTable.prototype.insert = function(key, value) {
+  this.insertWithoutResize(key, value);
+  this.checkStorageResize();
+};
+
+HashTable.prototype.insertWithoutResize = function(key, value) {
   var index = getIndexBelowMaxForKey(key, this._limit);
   if (this._storage[index] === undefined) {
     this._storage[index] = {};
     this._storage[index][key] = value;
+    this._itemCount += 1;
   } else {
-    if (this._storage.hasOwnProperty(key)) {
-      this._hasCollision = true;
-      this._reHashLarger();
+    if (!this._storage.hasOwnProperty(key)) {
+      this._itemCount += 1;
     }
     this._storage[index][key] = value;
   }
@@ -33,19 +40,43 @@ HashTable.prototype.retrieve = function(key) {
 
 HashTable.prototype.remove = function(key) {
   var index = getIndexBelowMaxForKey(key, this._limit);
-  this._storage[index] = undefined;
+  if (this._storage[index] !== undefined && this._storage[index].hasOwnProperty(key)) {
+    delete this._storage[index][key];
+    if (Object.keys(this._storage[index]).length === 0) {
+      this._storage[index] = undefined;
+    }
+    this._itemCount -= 1;
+    this.checkStorageResize();
+  }
 };
 
 HashTable.prototype.reHash = function(size) {
   let newHashTable = new HashTable(size);
+  for (let i = 0; i < this._limit; i++) {
+    if (this._storage[i] !== undefined) {
+      for (let key in this._storage[i]) {
+        newHashTable.insertWithoutResize(key, this._storage[i][key]);
+      }
+    }
+  }
+  this._limit = newHashTable._limit;
+  this._storage = newHashTable._storage;
 };
 
 HashTable.prototype.reHashLarger = function() {
-  this.reHash(this._limit * 2);
+  this.reHash.call(this, this._limit * 2);
 };
 
 HashTable.prototype.reHashSmaller = function() {
-  this.reHash(this._limit / 2);
+  this.reHash.call(this, this._limit / 2);
+};
+
+HashTable.prototype.checkStorageResize = function() {
+  if (this._itemCount / this._limit > 0.75) {
+    this.reHashLarger();
+  } else if (this._itemCount / this._limit < 0.25) {
+    this.reHashSmaller();
+  }
 };
 
 /*
