@@ -17,33 +17,33 @@ HashTable.prototype.insert = function(key, value) {
 
 HashTable.prototype.insertWithoutResize = function(key, value) {
   var index = getIndexBelowMaxForKey(key, this._limit);
-  if (this._storage[index] === undefined) {
-    this._storage[index] = {};
-    this._storage[index][key] = value;
+  if (this._storage.get(index) === undefined) {
+    this._storage.set(index, {});
+    this._storage.get(index)[key] = value;
     this._itemCount += 1;
   } else {
-    if (!this._storage.hasOwnProperty(key)) {
+    if (!this._storage.get(index).hasOwnProperty(key)) {
       this._itemCount += 1;
     }
-    this._storage[index][key] = value;
+    this._storage.get(index)[key] = value;
   }
 };
 
 HashTable.prototype.retrieve = function(key) {
   var index = getIndexBelowMaxForKey(key, this._limit);
-  if (this._storage[index] === undefined) {
+  if (this._storage.get(index) === undefined) {
     return undefined;
   } else {
-    return this._storage[index][key];
+    return this._storage.get(index)[key];
   }
 };
 
 HashTable.prototype.remove = function(key) {
   var index = getIndexBelowMaxForKey(key, this._limit);
-  if (this._storage[index] !== undefined && this._storage[index].hasOwnProperty(key)) {
-    delete this._storage[index][key];
-    if (Object.keys(this._storage[index]).length === 0) {
-      this._storage[index] = undefined;
+  if (this._storage.get(index) !== undefined && this._storage.get(index).hasOwnProperty(key)) {
+    delete this._storage.get(index)[key];
+    if (Object.keys(this._storage.get(index)).length === 0) {
+      this._storage.set(index, undefined);
     }
     this._itemCount -= 1;
     this.checkStorageResize();
@@ -53,9 +53,9 @@ HashTable.prototype.remove = function(key) {
 HashTable.prototype.reHash = function(size) {
   let newHashTable = new HashTable(size);
   for (let i = 0; i < this._limit; i++) {
-    if (this._storage[i] !== undefined) {
-      for (let key in this._storage[i]) {
-        newHashTable.insertWithoutResize(key, this._storage[i][key]);
+    if (this._storage.get(i) !== undefined) {
+      for (let key in this._storage.get(i)) {
+        newHashTable.insertWithoutResize(key, this._storage.get(i)[key]);
       }
     }
   }
