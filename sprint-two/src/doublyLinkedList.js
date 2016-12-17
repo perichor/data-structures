@@ -5,11 +5,11 @@ var DoublyLinkedList = function() {
 
   list.addToTail = function(value) {
     var newNode = Node(value);
-
-    if (list.tail !== null) {
-      list.tail.next = newNode;
-      newNode.previous = list.tail;
-    } else {
+    let oldTail = list.tail;
+    if (oldTail !== null) {
+      oldTail.next = newNode;
+      newNode.previous = oldTail;
+    } else if (oldTail === null) {
       list.head = newNode;
     }
     list.tail = newNode;
@@ -33,10 +33,12 @@ var DoublyLinkedList = function() {
     // Test if there is only one node in the linked list
     if (list.head === list.tail) {
       list.tail = null;
+      list.head = null;
+    } else {
+      list.head = list.head.next;
+      list.head.previous = null;
     }
 
-    list.head = list.head.next;
-    list.head.previous = null;
 
     return currentHead.value;
   };
@@ -47,10 +49,12 @@ var DoublyLinkedList = function() {
     // Test if there is only one node in the linked list
     if (list.tail === list.head) {
       list.head = null;
+      list.tail = null;
+    } else {
+      list.tail = list.tail.previous;
+      list.tail.next = null;
     }
 
-    list.tail = list.tail.previous;
-    list.tail.next = null;
 
     return currentTail.value;
   };
