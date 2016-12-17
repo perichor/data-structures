@@ -59,6 +59,19 @@ var BinarySearchTree = function(value) {
     }
   };
 
+  BSTInstance.breadthFirstLog = function(userFunction) {
+    let executionQueue = [this];
+    for (let i = 0; i < executionQueue.length; i++) {
+      userFunction(executionQueue[i]);
+      if (executionQueue[i].left !== undefined) {
+        executionQueue.push(executionQueue[i].left);
+      }
+      if (executionQueue[i].right !== undefined) {
+        executionQueue.push(executionQueue[i].right);
+      }
+    }
+  };
+
   return BSTInstance;
 };
 
