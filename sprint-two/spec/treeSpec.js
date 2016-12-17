@@ -79,5 +79,25 @@ describe('tree', function() {
 
   });
 
+  it('should invoke provided callback function on each element in a tree', function() {
+    tree.addChild(5);
+    tree.addChild(6);
+    tree.children[0].addChild(7);
+    tree.children[1].addChild(8);
+
+    tree.children[0].children[0].addChild(3);
+    tree.children[0].children[0].addChild(4);
+    tree.children[0].children[0].addChild(5);
+
+    let array = [];
+    let pusher = function(node) {
+      array.push(node.value);
+    };
+    tree.traverse(pusher);
+    expect(array).to.deep.equal([undefined, 5, 7, 3, 4, 5, 6, 8]);
+
+  });
+
+
 
 });

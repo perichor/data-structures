@@ -5,6 +5,7 @@ var Tree = function(value, parent) {
   newTree.addChild = treeMethods.addChild;
   newTree.contains = treeMethods.contains;
   newTree.removeFromParent = treeMethods.removeFromParent;
+  newTree.traverse = treeMethods.traverse;
   if (parent === undefined) { 
     newTree.parent = null;
   } else {
@@ -55,6 +56,25 @@ treeMethods.contains = function(target) {
   };
   return traverser.call(this, target, false);
 };
+
+treeMethods.traverse = function(callback) {
+  callback(this);
+  let context = this;
+  this.children.forEach( function(child) {
+    context.traverse.call(child, callback);
+  });
+};
+
+
+
+
+
+
+
+
+
+
+
 
 
 
