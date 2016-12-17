@@ -24,4 +24,23 @@ describe('set', function() {
     expect(set.contains('Mel Gibson')).to.equal(false);
   });
 
+  it('should be able to see if it contains a particular object', function() {
+    let addedObject = {a: 'apple'};
+    let testObject = {a: 'apple'};
+    let testObjectTwo = {a: 'banana'};
+    set.add(addedObject);
+    expect(set.contains(testObject)).to.equal(true);
+    expect(set.contains(testObjectTwo)).to.equal(false);
+  });
+
+
+  it('should be able to see if it contains a particular array', function() {
+    let addedArray = [1, 2, 1];
+    let testArray = [1, 2, 1];
+    let testArrayTwo = [1, 2, 3];
+    set.add(addedArray);
+    expect(set.contains(testArray)).to.equal(true);
+    expect(set.contains(testArrayTwo)).to.equal(false);
+  });
+
 });
